@@ -35,27 +35,27 @@ fn init() {
     gpio::pin_use_as_alt5(14);
     gpio::pin_use_as_alt5(15);
 
-    AuxEnables {}.store(1); // uart enabled
-    AuxMuIer {}.store(0); // reset interupts
-    AuxMuCntl {}.store(0); // recv/xmit disabled
-    AuxMuLcr {}.store(3); // 8bit mode
-    AuxMuMcr {}.store(0); // reset interupts
-    AuxMuIer {}.store(0); // reset interupts again
-    AuxMuIir {}.store(6); // clear both fifos
-    AuxMuBaud {}.store(aux_mu_baud(115200));
-    AuxMuCntl {}.store(3); // recv/xmit enabled
+    AuxEnables::new(1).store(); // uart enabled
+    AuxMuIer::new(0).store(); // reset interupts
+    AuxMuCntl::new(0).store(); // recv/xmit disabled
+    AuxMuLcr::new(3).store(); // 8bit mode
+    AuxMuMcr::new(0).store(); // reset interupts
+    AuxMuIer::new(0).store(); // reset interupts again
+    AuxMuIir::new(6).store(); // clear both fifos
+    AuxMuBaud::new(aux_mu_baud(115200)).store();
+    AuxMuCntl::new(3).store(); // recv/xmit enabled
 }
 
 // is_write_ready returns true if the uart is ready to transmit.
 fn is_write_ready() -> bool {
-    (AuxMuLsr {}.fetch() & 0x20) != 0
+    (AuxMuLsr::zero().fetch() & 0x20) != 0
 }
 
 // write_char writes a single character. It uses polling to wait
 // for the uart to be writable.
 fn write_char(ch: u8) {
     while !is_write_ready() { /* wait */ }
-    AuxMuIo {}.store(ch as u32);
+    AuxMuIo::new(ch as u32).store();
 }
 
 pub struct Writer {
