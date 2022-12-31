@@ -28,7 +28,7 @@ pub fn delay(cycles: u64) {
             "1:",
             "sub {cnt}, {cnt}, #1",
             "cbnz {cnt}, 1b",
-            cnt = in(reg) cycles,
+            cnt = inout(reg) cycles => _,
         );
     }
 }

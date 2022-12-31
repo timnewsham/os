@@ -4,7 +4,7 @@
  */
 
 use crate::mmio::{Reg32, Reg32Array};
-use crate::{asm, mmio_reg32, mmio_reg32_array, mmio};
+use crate::{asm, mmio, mmio_reg32, mmio_reg32_array};
 
 const GPIO_MAXPIN: u32 = 53;
 const GPIO_BASE: usize = mmio::IOBASE + 0x20_0000;

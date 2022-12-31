@@ -3,8 +3,8 @@
  * BCM2837 AUX UART (UART1) support.
  */
 
-use crate::{gpio, mmio, mmio_reg32};
 use crate::mmio::Reg32;
+use crate::{gpio, mmio, mmio_reg32};
 use core::fmt;
 use lazy_static::lazy_static;
 use spin::Mutex;
