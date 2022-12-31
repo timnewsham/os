@@ -4,7 +4,7 @@ This is a small stand alone binary written in rust that runs
 in qemu in a virtual rasbpi3b.
 Currently it just does a little initialization and then prints
 over the uart and then exits.
-It is executing directly from the built ELF binary, not using
+It runs in qemu directly from the built ELF binary, not using
 any special linker script or bootimage builder, so the execution
 environment probably doesnt match anything that would work on
 real hardware.
