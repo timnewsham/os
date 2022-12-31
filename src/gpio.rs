@@ -4,8 +4,7 @@
  */
 
 use crate::mmio::{Reg32, Reg32Array};
-use crate::{make_reg32, make_reg32_array, mmio};
-use core::arch::asm;
+use crate::{asm, make_reg32, make_reg32_array, mmio};
 
 const GPIO_MAXPIN: u32 = 53;
 const GPIO_BASE: usize = mmio::IOBASE + 0x20_0000;
@@ -50,17 +49,6 @@ fn pin_set_pupd_clk(pin: u32, val: u32) {
     bitvec_write(GpPupdClk {}, 1, pin, val);
 }
 
-fn delay(cycles: u64) {
-    unsafe {
-        asm!(
-            "1:",
-            "sub {cnt}, {cnt}, #1",
-            "cbnz {cnt}, 1b",
-            cnt = in(reg) cycles,
-        );
-    }
-}
-
 // pin_set_pull sets the pullup behavior of a GPIO pin.
 fn pin_set_pull(pin: u32, val: u32) {
     // See BCM2837 ARM Peripherals pg 101.
@@ -68,13 +56,13 @@ fn pin_set_pull(pin: u32, val: u32) {
     GpPud {}.store(val);
 
     // wait
-    delay(150);
+    asm::delay(150);
 
     // assert clock for the right pin
     pin_set_pupd_clk(pin, 1);
 
     // wait
-    delay(150);
+    asm::delay(150);
 
     // clear GPPUD, and de-assert clock
     GpPud {}.store(0);
