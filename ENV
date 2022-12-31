@@ -1,0 +1,10 @@
+#
+# Sets up PATH to include fuchsia's prebuilts for gdb, objdump, qemu, etc.
+# Source this file to get these tools in path.
+#
+
+TOP=../..
+HOST=mac-x64
+PB=$TOP/prebuilt/third_party
+export PATH=$PB/qemu/$HOST/bin:$PB/gcc/$HOST/bin:$PB/binutils-gdb/$HOST/bin:$PB/gcc/$HOST/bin:$PATH
+

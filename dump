@@ -1,0 +1,8 @@
+#!/bin/sh
+#
+# Dumps out a disassembly of our built target.
+#
+
+TARG=./target/aarch64-unknown-none/debug/os
+
+aarch64-elf-objdump -d $TARG

@@ -1,0 +1,6 @@
+[build]
+target = "aarch64-unknown-none"
+
+[target.'cfg(target_os = "none")']
+runner = "qemu-system-aarch64 -machine raspi3b -serial null -serial mon:stdio -nographic -semihosting -kernel"
+

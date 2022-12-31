@@ -1,0 +1,20 @@
+#!/bin/sh
+#
+# Invoke qemu with our target.
+# Emulates a rspbi3b with output on UART1 (AUX uart).
+#
+# If invoked with "-g" waits for gdb to connect.
+#
+
+TARG=./target/aarch64-unknown-none/debug/os
+
+XTRA=""
+if [ "x$1" = "x-g" ] ; then
+	XTRA="-S -s"
+fi
+
+qemu-system-aarch64 -machine raspi3b \
+	-kernel $TARG \
+	-serial null -serial mon:stdio -nographic \
+	-semihosting \
+	$XTRA
