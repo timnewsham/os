@@ -3,9 +3,7 @@
  * BCM2837 AUX UART (UART1) support.
  */
 
-use crate::gpio;
-use crate::make_reg32;
-use crate::mmio;
+use crate::{gpio, mmio, mmio_reg32};
 use crate::mmio::Reg32;
 use core::fmt;
 use lazy_static::lazy_static;
@@ -16,15 +14,15 @@ const AUX_BASE: usize = mmio::IOBASE + 0x21_5000;
 
 // TODO: figure out a way to do this generically with proper u32-based structures
 // with bit fields to better document each bit field access.
-make_reg32!(AuxEnables, AUX_BASE + 4); // bit 0 enables aux's mini uart (uart1)
-make_reg32!(AuxMuIo, AUX_BASE + 0x40);
-make_reg32!(AuxMuIer, AUX_BASE + 0x44);
-make_reg32!(AuxMuIir, AUX_BASE + 0x48);
-make_reg32!(AuxMuLcr, AUX_BASE + 0x4c);
-make_reg32!(AuxMuMcr, AUX_BASE + 0x50);
-make_reg32!(AuxMuLsr, AUX_BASE + 0x54);
-make_reg32!(AuxMuCntl, AUX_BASE + 0x60);
-make_reg32!(AuxMuBaud, AUX_BASE + 0x68);
+mmio_reg32!(AuxEnables, AUX_BASE + 4); // bit 0 enables aux's mini uart (uart1)
+mmio_reg32!(AuxMuIo, AUX_BASE + 0x40);
+mmio_reg32!(AuxMuIer, AUX_BASE + 0x44);
+mmio_reg32!(AuxMuIir, AUX_BASE + 0x48);
+mmio_reg32!(AuxMuLcr, AUX_BASE + 0x4c);
+mmio_reg32!(AuxMuMcr, AUX_BASE + 0x50);
+mmio_reg32!(AuxMuLsr, AUX_BASE + 0x54);
+mmio_reg32!(AuxMuCntl, AUX_BASE + 0x60);
+mmio_reg32!(AuxMuBaud, AUX_BASE + 0x68);
 
 // aux_mu_baud computes the baud register value for the intended baud rate
 // based on the clock speed of the SoC.

@@ -4,14 +4,14 @@
  */
 
 use crate::mmio::{Reg32, Reg32Array};
-use crate::{asm, make_reg32, make_reg32_array, mmio};
+use crate::{asm, mmio_reg32, mmio_reg32_array, mmio};
 
 const GPIO_MAXPIN: u32 = 53;
 const GPIO_BASE: usize = mmio::IOBASE + 0x20_0000;
 
-make_reg32_array!(GpFSel, GPIO_BASE, 6);
-make_reg32!(GpPud, GPIO_BASE + 0x94);
-make_reg32_array!(GpPupdClk, GPIO_BASE + 0x98, 2);
+mmio_reg32_array!(GpFSel, GPIO_BASE, 6);
+mmio_reg32!(GpPud, GPIO_BASE + 0x94);
+mmio_reg32_array!(GpPupdClk, GPIO_BASE + 0x98, 2);
 
 // bitvec_write writes val to a GPIO bit vector reg_vec having sz-bit entries.
 // These are arrays of sz-bit elements that are packed into u32 registers

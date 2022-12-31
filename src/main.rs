@@ -18,7 +18,7 @@ fn panic(info: &PanicInfo) -> ! {
 #[no_mangle]
 pub extern "C" fn _start_rust(cpuid: u64) -> ! {
     if cpuid != 0 {
-        println!("core {} halting", cpuid);
+        //println!("core {} halting", cpuid);
         asm::halt();
     }
 

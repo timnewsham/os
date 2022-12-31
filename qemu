@@ -6,7 +6,8 @@
 # If invoked with "-g" waits for gdb to connect.
 #
 
-TARG=./target/aarch64-unknown-none/debug/os
+BUILD=${BUILD:-debug}
+TARG=./target/aarch64-unknown-none/$BUILD/os
 
 XTRA=""
 if [ "x$1" = "x-g" ] ; then

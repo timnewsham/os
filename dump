@@ -3,6 +3,7 @@
 # Dumps out a disassembly of our built target.
 #
 
-TARG=./target/aarch64-unknown-none/debug/os
+BUILD=${BUILD:-debug}
+TARG=./target/aarch64-unknown-none/$BUILD/os
 
 aarch64-elf-objdump -d $TARG

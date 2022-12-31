@@ -5,9 +5,10 @@
 # After completion, kill off the qemu instance.
 #
 
-TARG=./target/aarch64-unknown-none/debug/os
+BUILD=${BUILD:-debug}
+TARG=./target/aarch64-unknown-none/$BUILD/os
 
-../../prebuilt/third_party/rust/mac-x64/bin/rust-gdb "$@" $TARG
+rust-gdb "$@" $TARG
 
 echo "killing emu"
 killall qemu-system-aarch64

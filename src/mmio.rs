@@ -18,7 +18,7 @@ pub trait Reg32 {
 }
 
 #[macro_export]
-macro_rules! make_reg32 {
+macro_rules! mmio_reg32 {
     ($struct_name:ident, $addr:expr) => {
         struct $struct_name {}
         impl Reg32 for $struct_name {
@@ -49,7 +49,7 @@ pub trait Reg32Array {
 }
 
 #[macro_export]
-macro_rules! make_reg32_array {
+macro_rules! mmio_reg32_array {
     ($struct_name:ident, $addr:expr, $size:expr) => {
         struct $struct_name {}
         impl Reg32Array for $struct_name {
