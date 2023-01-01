@@ -3,7 +3,7 @@
  * BCM2837 GPIO support.
  */
 
-use crate::mmio::{Reg32, Reg32Array};
+use crate::mmio::{Reg, Reg32Array};
 use crate::{asm, mmio, mmio_reg32, mmio_reg32_array};
 
 const GPIO_MAXPIN: u32 = 53;
