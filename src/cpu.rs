@@ -38,7 +38,6 @@ macro_rules! cpu_reg64 {
             fn store(&self) {
                 let val = self.cached;
                 unsafe {
-        			//asm!("msr MPIDR_EL1, {src}", src = in(reg) val);
         			asm!(core::concat!("msr ", stringify!($reg), ", {}"), in(reg) val);
                 }
             }
