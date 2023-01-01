@@ -2,6 +2,7 @@
 #![no_main]
 
 mod asm;
+mod cpu;
 mod gpio;
 mod mmio;
 mod reg;

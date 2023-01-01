@@ -1,4 +1,17 @@
+use crate::cpu_reg64;
+use crate::reg::Reg;
 use core::arch::{asm, global_asm};
+
+cpu_reg64!(CurrentEl, CurrentEl);
+cpu_reg64!(MpidrEl1, MPIDR_EL1);
+
+pub fn current_el() -> u64 {
+    return CurrentEl::zero().fetch().get_value() >> 2;
+}
+
+pub fn core_id() -> u64 {
+    return MpidrEl1::zero().fetch().get_value() & 0xff;
+}
 
 // halt spins forever.
 pub fn halt() -> ! {
@@ -31,22 +44,6 @@ pub fn delay(cycles: u64) {
             cnt = inout(reg) cycles => _,
         );
     }
-}
-
-pub fn current_el() -> u64 {
-    let mut x: u64;
-    unsafe {
-        asm!("mrs {}, CurrentEl", out(reg) x);
-    }
-    return x >> 2;
-}
-
-pub fn core_id() -> u64 {
-    let mut x: u64;
-    unsafe {
-        asm!("mrs {}, MPIDR_EL1", out(reg) x);
-    }
-    return x & 0xff;
 }
 
 // _start is the initial entry point.
