@@ -20,10 +20,10 @@ pub trait Reg32 {
     }
 
     // fetch reads the hardware register and returns it.
-    fn fetch(&mut self) -> u32 {
+    fn fetch(&mut self) -> &mut Self {
         let val = unsafe { core::ptr::read_volatile(Self::ADDR as *mut u32) };
         self.set_value(val);
-        val
+        self
     }
 
     // get_value gets the currently cached value.
@@ -31,20 +31,31 @@ pub trait Reg32 {
 
     // set_value sets the currently cached value.
     // Use store() to commit it to the register.
-    fn set_value(&mut self, val: u32);
+    fn set_value(&mut self, val: u32) -> &mut Self;
+
+    fn set_bits(&mut self, shift: u32, sz: u32, val: u32) -> &mut Self {
+        let mask: u32 = (1 << sz) - 1;
+        if val & !mask != 0 {
+            panic!("{} is too big", val);
+        }
+
+        let orig = self.get_value();
+        let new = (orig & (mask << shift)) | (val << shift);
+        self.set_value(new)
+    }
 }
 
 #[macro_export]
 macro_rules! mmio_reg32 {
     ($struct_name:ident, $addr:expr) => {
         struct $struct_name {
-            _value: u32,
+            cached: u32,
         }
 
         impl $struct_name {
             #[allow(dead_code)]
             fn new(value: u32) -> Self {
-                $struct_name { _value: value }
+                $struct_name { cached: value }
             }
 
             #[allow(dead_code)]
@@ -56,10 +67,11 @@ macro_rules! mmio_reg32 {
         impl Reg32 for $struct_name {
             const ADDR: usize = $addr;
             fn get_value(&self) -> u32 {
-                self._value
+                self.cached
             }
-            fn set_value(&mut self, val: u32) {
-                self._value = val;
+            fn set_value(&mut self, val: u32) -> &mut Self {
+                self.cached = val;
+                self
             }
         }
     };

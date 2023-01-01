@@ -8,6 +8,7 @@ use crate::{asm, mmio, mmio_reg32, mmio_reg32_array};
 
 const GPIO_MAXPIN: u32 = 53;
 const GPIO_BASE: usize = mmio::IOBASE + 0x20_0000;
+const ALT5: u32 = 2;
 
 mmio_reg32_array!(GpFSel, GPIO_BASE, 6);
 mmio_reg32!(GpPud, GPIO_BASE + 0x94);
@@ -16,6 +17,12 @@ mmio_reg32_array!(GpPupdClk, GPIO_BASE + 0x98, 2);
 impl GpFSel {
     fn store_pin_function(self, pin: u32, val: u32) {
         _bitvec_write(self, 3, pin, val);
+    }
+}
+
+impl GpPud {
+    fn set_disabled(&mut self) -> &mut Self {
+        self.set_bits(0, 2, 0)
     }
 }
 
@@ -51,11 +58,12 @@ fn _bitvec_write<T: Reg32Array>(reg_vec: T, sz: u32, pin: u32, val: u32) {
     reg_vec.store(reg_index, newval);
 }
 
-// pin_set_pull sets the pullup behavior of a GPIO pin.
-fn pin_set_pull(pin: u32, val: u32) {
+// pin_disable_pull sets the pullup behavior of a GPIO pin to disable.
+fn pin_disable_pull(pin: u32) {
     // See BCM2837 ARM Peripherals pg 101.
     // Write intended value
-    GpPud::new(val).store();
+    let mut gp_pud = GpPud::zero();
+    gp_pud.set_disabled().store();
 
     // wait
     asm::delay(150);
@@ -67,12 +75,12 @@ fn pin_set_pull(pin: u32, val: u32) {
     asm::delay(150);
 
     // clear GPPUD, and de-assert clock
-    GpPud::new(0).store();
+    gp_pud.set_value(0).store();
     GpPupdClk::new().store_pin_clk(pin, 0);
 }
 
 // pin_use_as_alt5 sets a GPIO pin to an ALT5 alternative function.
 pub fn pin_use_as_alt5(pin: u32) {
-    pin_set_pull(pin, 0); // pull none
-    GpFSel::new().store_pin_function(pin, 2); // ALT5
+    pin_disable_pull(pin);
+    GpFSel::new().store_pin_function(pin, ALT5); // ALT5
 }

@@ -24,10 +24,43 @@ mmio_reg32!(AuxMuLsr, AUX_BASE + 0x54);
 mmio_reg32!(AuxMuCntl, AUX_BASE + 0x60);
 mmio_reg32!(AuxMuBaud, AUX_BASE + 0x68);
 
-// aux_mu_baud computes the baud register value for the intended baud rate
-// based on the clock speed of the SoC.
-fn aux_mu_baud(baud: u32) -> u32 {
-    (AUX_UART_CLOCK / (baud * 8)) - 1
+impl AuxEnables {
+    fn set_enable(&mut self, enable: bool) -> &mut Self {
+        self.set_bits(0, 1, enable as u32)
+    }
+}
+
+impl AuxMuIir {
+    fn clear_fifos(&mut self) -> &mut Self {
+        self.set_bits(1, 2, 3)
+    }
+}
+
+impl AuxMuLcr {
+    fn set_8bit(&mut self) -> &mut Self {
+        self.set_value(3)
+    }
+}
+
+impl AuxMuLsr {
+    fn is_ready(&self) -> bool {
+        self.get_value() & 0x20 != 0
+    }
+}
+
+impl AuxMuCntl {
+    fn enable_recv(&mut self, enab: bool) -> &mut Self {
+        self.set_bits(0, 1, enab as u32)
+    }
+    fn enable_xmit(&mut self, enab: bool) -> &mut Self {
+        self.set_bits(1, 1, enab as u32)
+    }
+}
+
+impl AuxMuBaud {
+    fn set_baud(&mut self, baud: u32) -> &mut Self {
+        self.set_value((AUX_UART_CLOCK / (baud * 8)) - 1)
+    }
 }
 
 // init enables and initializes the aux UART (uart1).
@@ -35,26 +68,22 @@ fn init() {
     gpio::pin_use_as_alt5(14);
     gpio::pin_use_as_alt5(15);
 
-    AuxEnables::new(1).store(); // uart enabled
+    AuxEnables::zero().set_enable(true).store(); // uart enabled
     AuxMuIer::new(0).store(); // reset interupts
     AuxMuCntl::new(0).store(); // recv/xmit disabled
-    AuxMuLcr::new(3).store(); // 8bit mode
+    AuxMuLcr::new(0).set_8bit().store(); // 8bit mode
     AuxMuMcr::new(0).store(); // reset interupts
     AuxMuIer::new(0).store(); // reset interupts again
-    AuxMuIir::new(6).store(); // clear both fifos
-    AuxMuBaud::new(aux_mu_baud(115200)).store();
-    AuxMuCntl::new(3).store(); // recv/xmit enabled
-}
-
-// is_write_ready returns true if the uart is ready to transmit.
-fn is_write_ready() -> bool {
-    (AuxMuLsr::zero().fetch() & 0x20) != 0
+    AuxMuIir::new(0).clear_fifos().store(); // clear both fifos
+    AuxMuBaud::zero().set_baud(115200).store();
+    AuxMuCntl::zero().enable_xmit(true).enable_recv(true).store(); // recv/xmit enabled
 }
 
 // write_char writes a single character. It uses polling to wait
 // for the uart to be writable.
 fn write_char(ch: u8) {
-    while !is_write_ready() { /* wait */ }
+    let mut aux_mu_lsr = AuxMuLsr::zero();
+    while !aux_mu_lsr.fetch().is_ready() { /* wait */ }
     AuxMuIo::new(ch as u32).store();
 }
 
