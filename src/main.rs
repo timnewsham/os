@@ -4,6 +4,7 @@
 mod asm;
 mod gpio;
 mod mmio;
+mod reg;
 mod uart;
 
 use core::panic::PanicInfo;
