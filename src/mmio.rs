@@ -86,7 +86,7 @@ pub trait Reg32Array {
 
 #[macro_export]
 macro_rules! mmio_reg32_array {
-    ($struct_name:ident, $addr:expr, $size:expr) => {
+    ($struct_name:ident, $size:expr, $addr:expr) => {
         struct $struct_name {}
 
         impl $struct_name {

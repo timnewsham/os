@@ -11,9 +11,9 @@ const GPIO_MAXPIN: u32 = 53;
 const GPIO_BASE: usize = mmio::IOBASE + 0x20_0000;
 const ALT5: u32 = 2;
 
-mmio_reg32_array!(GpFSel, GPIO_BASE, 6);
+mmio_reg32_array!(GpFSel, 6, GPIO_BASE);
 mmio_reg32!(GpPud, GPIO_BASE + 0x94);
-mmio_reg32_array!(GpPupdClk, GPIO_BASE + 0x98, 2);
+mmio_reg32_array!(GpPupdClk, 2, GPIO_BASE + 0x98);
 
 impl GpFSel {
     fn store_pin_function(self, pin: u32, val: u32) {
