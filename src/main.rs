@@ -8,10 +8,8 @@ mod mmio;
 mod reg;
 mod uart;
 
-use core::panic::PanicInfo;
-
 #[panic_handler]
-fn panic(info: &PanicInfo) -> ! {
+fn panic(info: &core::panic::PanicInfo) -> ! {
     println!("{}", info);
     asm::halt();
 }
@@ -19,8 +17,8 @@ fn panic(info: &PanicInfo) -> ! {
 // _start_rust is called from _start (in asm) with the stack set up.
 #[no_mangle]
 pub extern "C" fn _start_rust() -> ! {
-    println!("EL {:x}", asm::current_el());
-    if asm::core_id() != 0 {
+    println!("EL {:x}", cpu::current_el());
+    if cpu::core_id() != 0 {
         println!("halting");
         asm::halt();
     }

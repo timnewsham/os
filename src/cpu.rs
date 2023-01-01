@@ -2,6 +2,9 @@
  * CPU register access.
  */
 
+use crate::reg::Reg;
+use core::arch::asm;
+
 #[macro_export]
 macro_rules! cpu_reg64 {
     ($struct_name:ident, $reg:ident) => {
@@ -59,4 +62,15 @@ macro_rules! cpu_reg64 {
             }
         }
     };
+}
+
+cpu_reg64!(CurrentEl, CurrentEl);
+cpu_reg64!(MpidrEl1, MPIDR_EL1);
+
+pub fn current_el() -> u64 {
+    return CurrentEl::fetch().get_value() >> 2;
+}
+
+pub fn core_id() -> u64 {
+    return MpidrEl1::fetch().get_value() & 0xff;
 }

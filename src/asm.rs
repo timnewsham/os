@@ -1,17 +1,4 @@
-use crate::cpu_reg64;
-use crate::reg::Reg;
 use core::arch::{asm, global_asm};
-
-cpu_reg64!(CurrentEl, CurrentEl);
-cpu_reg64!(MpidrEl1, MPIDR_EL1);
-
-pub fn current_el() -> u64 {
-    return CurrentEl::fetch().get_value() >> 2;
-}
-
-pub fn core_id() -> u64 {
-    return MpidrEl1::fetch().get_value() & 0xff;
-}
 
 // halt spins forever.
 pub fn halt() -> ! {

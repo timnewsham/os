@@ -117,7 +117,7 @@ macro_rules! print {
 #[macro_export]
 macro_rules! println {
     () => ($crate::print!("\n"));
-    ($($arg:tt)*) => ($crate::print!("core {}: {}\n", asm::core_id(), format_args!($($arg)*)));
+    ($($arg:tt)*) => ($crate::print!("core {}: {}\n", cpu::core_id(), format_args!($($arg)*)));
 }
 
 #[doc(hidden)]
