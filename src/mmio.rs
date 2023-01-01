@@ -14,14 +14,24 @@ macro_rules! mmio_reg32 {
         }
 
         impl $struct_name {
+            // new creates a new instances with pre-set cached value.
             #[allow(dead_code)]
             fn new(value: u32) -> Self {
                 $struct_name { cached: value }
             }
 
+            // zero creates a new instance with zeroed cached value.
             #[allow(dead_code)]
             fn zero() -> Self {
                 Self::new(0)
+            }
+
+            // fetch creates a new instances with fetched value.
+            #[allow(dead_code)]
+            fn fetch() -> Self {
+                let mut x = Self::zero();
+                x.fetch();
+                x
             }
         }
 

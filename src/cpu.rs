@@ -10,14 +10,24 @@ macro_rules! cpu_reg64 {
         }
 
         impl $struct_name {
+			// new creates a new instances with preset cached value.
             #[allow(dead_code)]
             fn new(value: u64) -> Self {
                 $struct_name { cached: value }
             }
 
+			// new creates a new instances with zeroed cached value.
             #[allow(dead_code)]
             fn zero() -> Self {
                 Self::new(0)
+            }
+
+			// new creates a new instances with fetched value.
+            #[allow(dead_code)]
+            fn fetch() -> Self {
+                let mut x = Self::zero();
+				x.fetch();
+				x
             }
         }
 
