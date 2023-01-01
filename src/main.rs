@@ -14,11 +14,12 @@ fn panic(info: &PanicInfo) -> ! {
     asm::halt();
 }
 
-// _start_rust is called from _start (in asm) with the stack set up and a cpuid.
+// _start_rust is called from _start (in asm) with the stack set up.
 #[no_mangle]
-pub extern "C" fn _start_rust(cpuid: u64) -> ! {
-    if cpuid != 0 {
-        println!("core {} halting", cpuid);
+pub extern "C" fn _start_rust() -> ! {
+    println!("EL {:x}", asm::current_el());
+    if asm::core_id() != 0 {
+        println!("halting");
         asm::halt();
     }
 

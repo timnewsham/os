@@ -33,6 +33,22 @@ pub fn delay(cycles: u64) {
     }
 }
 
+pub fn current_el() -> u64 {
+    let mut x: u64;
+    unsafe {
+        asm!("mrs {}, CurrentEl", out(reg) x);
+    }
+    return x >> 2;
+}
+
+pub fn core_id() -> u64 {
+    let mut x: u64;
+    unsafe {
+        asm!("mrs {}, MPIDR_EL1", out(reg) x);
+    }
+    return x & 0xff;
+}
+
 // _start is the initial entry point.
 // Qemu calls it on all four cores, with no stack pointer set.
 // It sets up a stack for each core and tail-calls _start_rust.
@@ -41,11 +57,11 @@ global_asm!(
 	.globl _start
     _start:
         mrs x0, MPIDR_EL1
-        and x0, x0, 0xff		// x0 = cpuid
+        and x0, x0, 0xff		// x0 = core id
         ldr x30, =0x400000
         mov x1, 0x10000			// x1 = STACKSIZE = 16 pages
         msub x30, x0, x1, x30
-        mov sp, x30				// sp = STACKTOP - STACKSIZE * cpuid
+        mov sp, x30				// sp = STACKTOP - STACKSIZE * core id
         b _start_rust
 "
 );
