@@ -13,24 +13,24 @@ macro_rules! cpu_reg64 {
         }
 
         impl $struct_name {
-			// new creates a new instances with preset cached value.
+            // new creates a new instances with preset cached value.
             #[allow(dead_code)]
             fn new(value: u64) -> Self {
                 $struct_name { cached: value }
             }
 
-			// new creates a new instances with zeroed cached value.
+            // new creates a new instances with zeroed cached value.
             #[allow(dead_code)]
             fn zero() -> Self {
                 Self::new(0)
             }
 
-			// new creates a new instances with fetched value.
+            // new creates a new instances with fetched value.
             #[allow(dead_code)]
             fn fetch() -> Self {
                 let mut x = Self::zero();
-				x.fetch();
-				x
+                x.fetch();
+                x
             }
         }
 
@@ -38,16 +38,16 @@ macro_rules! cpu_reg64 {
             fn store(&self) {
                 let val = self.cached;
                 unsafe {
-        			asm!(core::concat!("msr ", stringify!($reg), ", {}"), in(reg) val);
+                    asm!(core::concat!("msr ", stringify!($reg), ", {}"), in(reg) val);
                 }
             }
 
             fn fetch(&mut self) -> &mut Self {
-				let val: u64;
-				unsafe {
-        			asm!(core::concat!("mrs {}, ", stringify!($reg)), out(reg) val);
-				}
-				self.cached = val;
+                let val: u64;
+                unsafe {
+                    asm!(core::concat!("mrs {}, ", stringify!($reg)), out(reg) val);
+                }
+                self.cached = val;
                 self
             }
 

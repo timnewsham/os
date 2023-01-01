@@ -38,14 +38,14 @@ pub fn delay(cycles: u64) {
 // It sets up a stack for each core and tail-calls _start_rust.
 global_asm!(
     "
-	.globl _start
+    .globl _start
     _start:
         mrs x0, MPIDR_EL1
-        and x0, x0, 0xff		// x0 = core id
+        and x0, x0, 0xff        // x0 = core id
         ldr x30, =0x400000
-        mov x1, 0x10000			// x1 = STACKSIZE = 16 pages
+        mov x1, 0x10000         // x1 = STACKSIZE = 16 pages
         msub x30, x0, x1, x30
-        mov sp, x30				// sp = STACKTOP - STACKSIZE * core id
+        mov sp, x30             // sp = STACKTOP - STACKSIZE * core id
         b _start_rust
 "
 );
