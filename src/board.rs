@@ -1,3 +1,6 @@
+pub const NCPU: usize = 4;
+pub const STACK_SIZE: usize = 0x10000;
+
 /*
  * BCM2837 phys IOBASE
  * bus address 0x7Exx.xxxx lives at cpu phys address 0x3Fxx.xxxx
@@ -14,5 +17,11 @@ pub const GPIO_BASE: usize = IOBASE + 0x20_0000;
 // but in my qemu environment I've got nothing.
 // So.. wild guesses here, lets say the VC SDRAM split gives 256MB to the GPU,
 // and we'll claim the rest.
-#[allow(dead_code)]
 pub const RAM_TOP: usize = 0x4000_0000 - 256 * 1024 * 1024;
+
+// I'm not using a linker script yet, and I have no access to a symbol
+// specifying the end of the .bss section...  So lets fake it.
+// Arbitrarily declaring that the text/data/bss will fit in 64MB!
+pub const PROG_SIZE: usize = 64 * 1024 * 1024;
+pub const HEAP_BASE: usize = 0 + PROG_SIZE;
+pub const HEAP_TOP: usize = RAM_TOP - STACK_SIZE * NCPU;

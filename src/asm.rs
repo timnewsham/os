@@ -144,6 +144,7 @@ pub fn init_exceptions() {
 // TODO: this hardwires the board::RAM_TOP value!!!!
 // TODO: is there a way to inline board::RAM_TOP?
 // TODO: until then, make sure to keep this in synch!!!
+// TODO: STACK_SIZE is hardwired here and must match board::STACK_SIZE.
 global_asm!(
     "
     .globl _start
