@@ -25,3 +25,7 @@ pub const RAM_TOP: usize = 0x4000_0000 - 256 * 1024 * 1024;
 pub const PROG_SIZE: usize = 64 * 1024 * 1024;
 pub const HEAP_BASE: usize = 0 + PROG_SIZE;
 pub const HEAP_TOP: usize = RAM_TOP - STACK_SIZE * NCPU;
+
+pub const AUX_UART_CLOCK: u32 = 50_000_000;
+pub const AUX_UART_TX_PIN: u32 = 14;
+pub const AUX_UART_RX_PIN: u32 = 15;

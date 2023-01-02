@@ -3,6 +3,7 @@
  * BCM2837 GPIO support.
  */
 
+use crate::define_bits;
 use crate::mmio::Reg32Array;
 use crate::reg::Reg;
 use crate::{asm, board, mmio_reg32, mmio_reg32_array};
@@ -21,9 +22,9 @@ impl GpFSel {
 }
 
 impl GpPud {
-    fn set_disabled(&mut self) -> &mut Self {
-        self.set_bits(0, 2, 0)
-    }
+    const PUD_DISABLED: u32 = 0;
+
+    define_bits!(0, 2, u32, set_pud, get_pud);
 }
 
 impl GpPupdClk {
@@ -53,6 +54,7 @@ fn _bitvec_write<T: Reg32Array>(reg_vec: T, sz: u32, pin: u32, val: u32) {
 
     let shift = reg_offset * sz;
 
+    // TODO: would be nice if we could just re-use set_bits() here.
     let curval = reg_vec.fetch(reg_index);
     let newval = (curval & !(mask << shift)) | (val << shift);
     reg_vec.store(reg_index, newval);
@@ -62,8 +64,7 @@ fn _bitvec_write<T: Reg32Array>(reg_vec: T, sz: u32, pin: u32, val: u32) {
 fn pin_disable_pull(pin: u32) {
     // See BCM2837 ARM Peripherals pg 101.
     // Write intended value
-    let mut gp_pud = GpPud::zero();
-    gp_pud.set_disabled().store();
+    GpPud::zero().set_pud(GpPud::PUD_DISABLED).store();
 
     // wait
     asm::delay(150);
@@ -75,7 +76,7 @@ fn pin_disable_pull(pin: u32) {
     asm::delay(150);
 
     // clear GPPUD, and de-assert clock
-    gp_pud.set_value(0).store();
+    GpPud::zero().store();
     GpPupdClk::new().store_pin_clk(pin, 0);
 }
 

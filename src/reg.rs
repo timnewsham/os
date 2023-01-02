@@ -64,8 +64,70 @@ macro_rules! define_bit {
             self.get_bit($bitpos)
         }
         pub fn concat_idents!(set_, $name)(&mut self, val: bool) -> &mut Self {
-            self.set_bit(bitpos, val)
+            self.set_bit($bitpos, val)
         }
     };
 }
 */
+
+#[macro_export]
+macro_rules! define_bit_ro {
+    ($bitpos:expr, $getname:ident) => {
+        #[allow(dead_code)]
+        pub fn $getname(&self) -> bool {
+            self.get_bit($bitpos)
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! define_bit_wo {
+    ($bitpos:expr, $setname:ident) => {
+        #[allow(dead_code)]
+        pub fn $setname(&mut self, val: bool) -> &mut Self {
+            self.set_bit($bitpos, val)
+        }
+    };
+}
+
+// TODO: ideally we could generate $setname and $getname
+// with concat_ident! from a single name.
+#[macro_export]
+macro_rules! define_bit {
+    ($bitpos:expr, $setname:ident, $getname:ident) => {
+        $crate::define_bit_wo!($bitpos, $setname);
+        $crate::define_bit_ro!($bitpos, $getname);
+    };
+}
+
+#[macro_export]
+macro_rules! define_bits_ro {
+    ($bitpos:expr, $width:expr, $eltype:ty, $getname:ident) => {
+        #[allow(dead_code)]
+        pub fn $getname(&self) -> $eltype {
+            self.get_bits($bitpos, $width)
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! define_bits_wo {
+    ($bitpos:expr, $width:expr, $eltype:ty, $setname:ident) => {
+        #[allow(dead_code)]
+        pub fn $setname(&mut self, val: $eltype) -> &mut Self {
+            self.set_bits($bitpos, $width, val)
+        }
+    };
+}
+
+// TODO: ideally we could generate $setname and $getname
+// with concat_ident! from a single name.
+// TODO: cant we do something with an associated type or
+// with type inference so that we dont need to specify $eltype!?
+#[macro_export]
+macro_rules! define_bits {
+    ($bitpos:expr, $width:expr, $eltype:ty, $setname:ident, $getname:ident) => {
+        $crate::define_bits_wo!($bitpos, $width, $eltype, $setname);
+        $crate::define_bits_ro!($bitpos, $width, $eltype, $getname);
+    };
+}

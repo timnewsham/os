@@ -2,6 +2,7 @@
  * CPU register access.
  */
 
+use crate::define_bit;
 use crate::reg::Reg;
 use core::arch::asm;
 
@@ -82,25 +83,14 @@ cpu_reg64!(SpSel, SPSel);
 cpu_reg64!(VBarEl3, VBAR_EL3);
 
 impl ScrEl3 {
-    // TODO: figure out how to macro-ize bit accessor generation...
-    pub fn set_irq(&mut self, b: bool) -> &mut Self {
-        self.set_bit(1, b)
-    }
-    pub fn set_fiq(&mut self, b: bool) -> &mut Self {
-        self.set_bit(2, b)
-    }
-    pub fn set_ea(&mut self, b: bool) -> &mut Self {
-        self.set_bit(3, b)
-    }
-    pub fn set_rw(&mut self, b: bool) -> &mut Self {
-        self.set_bit(10, b)
-    }
+    define_bit!(1, set_irq, get_irq);
+    define_bit!(2, set_fiq, get_fiq);
+    define_bit!(3, set_ea, get_ea);
+    define_bit!(10, set_rw, get_rw);
 }
 
 impl SpSel {
-    pub fn set_sp(&mut self, b: bool) -> &mut Self {
-        self.set_bit(0, b)
-    }
+    define_bit!(0, set_sp, get_sp);
 }
 
 pub fn current_el() -> u64 {
