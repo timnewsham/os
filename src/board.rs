@@ -9,6 +9,8 @@ pub const STACK_SIZE: usize = 0x10000;
 pub const IOBASE: usize = 0x3f00_0000;
 pub const AUX_BASE: usize = IOBASE + 0x21_5000;
 pub const GPIO_BASE: usize = IOBASE + 0x20_0000;
+#[allow(dead_code)]
+pub const INTC_BASE: usize = IOBASE + 0x00_B000;
 
 // RAMTOP is at 0x4000_0000, but overlaps the IO region at 0x3f00_0000.
 // During boot it some ram is stolen for the VC SDRAM which specifies a

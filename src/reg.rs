@@ -1,18 +1,17 @@
+pub trait Trait<T> = Copy
+    + From<bool>
+    + From<u8>
+    + core::cmp::Eq
+    + core::ops::BitAnd<Output = T>
+    + core::ops::BitOr<Output = T>
+    + core::ops::Shl<u8, Output = T>
+    + core::ops::Shr<u8, Output = T>
+    + core::ops::Sub<Output = T>
+    + core::ops::Not<Output = T>
+    + core::fmt::Display;
+
 // Reg<T> is a T (some primitive integer/bit vector) MMIO register with "safe" fetch and store methods.
-pub trait Reg<T>
-where
-    T: Copy
-        + From<bool>
-        + From<u8>
-        + core::cmp::Eq
-        + core::ops::BitAnd<Output = T>
-        + core::ops::BitOr<Output = T>
-        + core::ops::Shl<u8, Output = T>
-        + core::ops::Shr<u8, Output = T>
-        + core::ops::Sub<Output = T>
-        + core::ops::Not<Output = T>
-        + core::fmt::Display,
-{
+pub trait Reg<T: Trait<T>> {
     // store writes the current value into the hardware register.
     fn store(&self);
 

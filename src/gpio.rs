@@ -38,26 +38,16 @@ impl GpPupdClk {
 // starting iwth the lowest bits.  Elements never span a register, and the
 // upper bits of the register are left unused if the element size doesnt equally
 // divide 32.
-fn _bitvec_write<T: Reg32Array>(reg_vec: T, sz: u32, pin: u32, val: u32) {
+fn _bitvec_write<T: Reg32Array>(reg_vec: T, sz: u8, pin: u32, val: u32) {
     if pin >= GPIO_MAXPIN {
         panic!("pin {} is too large", pin);
     }
 
-    let mask = (1 << sz) - 1;
-    if (val & !mask) != 0 {
-        panic!("val {} is too big", val);
-    }
-
-    let fields_per_u32 = 32 / sz;
+    let fields_per_u32 = 32 / (sz as u32);
     let reg_index = (pin / fields_per_u32) as usize;
-    let reg_offset = pin % fields_per_u32;
+    let reg_offset = (pin % fields_per_u32) as u8;
 
-    let shift = reg_offset * sz;
-
-    // TODO: would be nice if we could just re-use set_bits() here.
-    let curval = reg_vec.fetch(reg_index);
-    let newval = (curval & !(mask << shift)) | (val << shift);
-    reg_vec.store(reg_index, newval);
+    reg_vec.get(reg_index).fetch().set_bits(reg_offset, sz, val).store();
 }
 
 // pin_disable_pull sets the pullup behavior of a GPIO pin to disable.

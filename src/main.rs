@@ -2,6 +2,7 @@
 #![no_main]
 #![feature(naked_functions)]
 #![feature(asm_const)]
+#![feature(trait_alias)]
 
 mod asm;
 mod board;

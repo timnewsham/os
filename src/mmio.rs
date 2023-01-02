@@ -1,3 +1,6 @@
+use crate::reg;
+use crate::reg::Reg;
+
 #[macro_export]
 macro_rules! mmio_reg32 {
     ($struct_name:ident, $addr:expr) => {
@@ -53,26 +56,61 @@ macro_rules! mmio_reg32 {
     };
 }
 
+// Generic mmio with an explicit address.
+pub struct Mmio<T> {
+    addr: usize,
+    cached: T,
+}
+
+impl<T: reg::Trait<T>> Mmio<T> {
+    #[allow(dead_code)]
+    pub fn new(addr: usize, val: T) -> Self {
+        Mmio::<T> { addr: addr, cached: val }
+    }
+    #[allow(dead_code)]
+    pub fn zero(addr: usize) -> Self {
+        Self::new(addr, T::from(0))
+    }
+}
+
+impl<T: reg::Trait<T>> Reg<T> for Mmio<T> {
+    fn store(&self) {
+        let val = self.get_value();
+        unsafe {
+            core::ptr::write_volatile(self.addr as *mut T, val);
+        }
+    }
+
+    fn fetch(&mut self) -> &mut Self {
+        let val = unsafe { core::ptr::read_volatile(self.addr as *mut T) };
+        self.set_value(val);
+        self
+    }
+
+    fn get_value(&self) -> T {
+        self.cached
+    }
+
+    fn set_value(&mut self, val: T) -> &mut Self {
+        self.cached = val;
+        self
+    }
+}
+
 // Reg32Array is an array of 32-bit MMIO registers with "safe" fetch and store methods.
 // The implementer must ensure that the associated ADDR and LEN are safe to read and write.
+// TODO: genericize this for types other than u32 if ever needed.
 pub trait Reg32Array {
     const ADDR: usize;
     const SIZE: usize;
 
-    fn store(&self, idx: usize, val: u32) {
+    // get returns a Reg<u32> for this index.
+    fn get(&self, idx: usize) -> Mmio<u32> {
         if idx >= Self::SIZE {
             panic!("idx {} is too big!", idx);
         }
         let addr = Self::ADDR + 4 * idx;
-        unsafe { core::ptr::write_volatile(addr as *mut u32, val) }
-    }
-
-    fn fetch(&self, idx: usize) -> u32 {
-        if idx >= Self::SIZE {
-            panic!("idx {} is too big!", idx);
-        }
-        let addr = Self::ADDR + 4 * idx;
-        unsafe { core::ptr::read_volatile(addr as *mut u32) }
+        Mmio::<u32>::zero(addr)
     }
 }
 

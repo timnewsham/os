@@ -15,6 +15,7 @@ pub fn power_off() -> ! {
     // I always get exit(1) from qemu, even with other exit reasons.
     unsafe {
         //asm!("svc 0"); // test exceptions.
+        //unsafe { core::ptr::write_volatile(0x0000_3fff_ffff_ffff as *mut u64, 1); } // test exceptions
 
         asm!(
             "mov w0, 0x18",     // exit
