@@ -1,11 +1,3 @@
-/*
- * BCM2837 phys IOBASE
- * bus address 0x7Exx.xxxx lives at cpu phys address 0x3Fxx.xxxx
- * Ref: BCM2837 ARM Peripherals, section 1.2.3.
- */
-
-pub const IOBASE: usize = 0x3f00_0000;
-
 #[macro_export]
 macro_rules! mmio_reg32 {
     ($struct_name:ident, $addr:expr) => {

@@ -4,25 +4,22 @@
  */
 
 use crate::reg::Reg;
-use crate::{gpio, mmio, mmio_reg32};
+use crate::{board, gpio, mmio_reg32};
 use core::fmt;
 use lazy_static::lazy_static;
 use spin::Mutex;
 
 const AUX_UART_CLOCK: u32 = 50_000_000;
-const AUX_BASE: usize = mmio::IOBASE + 0x21_5000;
 
-// TODO: figure out a way to do this generically with proper u32-based structures
-// with bit fields to better document each bit field access.
-mmio_reg32!(AuxEnables, AUX_BASE + 4); // bit 0 enables aux's mini uart (uart1)
-mmio_reg32!(AuxMuIo, AUX_BASE + 0x40);
-mmio_reg32!(AuxMuIer, AUX_BASE + 0x44);
-mmio_reg32!(AuxMuIir, AUX_BASE + 0x48);
-mmio_reg32!(AuxMuLcr, AUX_BASE + 0x4c);
-mmio_reg32!(AuxMuMcr, AUX_BASE + 0x50);
-mmio_reg32!(AuxMuLsr, AUX_BASE + 0x54);
-mmio_reg32!(AuxMuCntl, AUX_BASE + 0x60);
-mmio_reg32!(AuxMuBaud, AUX_BASE + 0x68);
+mmio_reg32!(AuxEnables, board::AUX_BASE + 4);
+mmio_reg32!(AuxMuIo, board::AUX_BASE + 0x40);
+mmio_reg32!(AuxMuIer, board::AUX_BASE + 0x44);
+mmio_reg32!(AuxMuIir, board::AUX_BASE + 0x48);
+mmio_reg32!(AuxMuLcr, board::AUX_BASE + 0x4c);
+mmio_reg32!(AuxMuMcr, board::AUX_BASE + 0x50);
+mmio_reg32!(AuxMuLsr, board::AUX_BASE + 0x54);
+mmio_reg32!(AuxMuCntl, board::AUX_BASE + 0x60);
+mmio_reg32!(AuxMuBaud, board::AUX_BASE + 0x68);
 
 impl AuxEnables {
     fn set_enable(&mut self, enable: bool) -> &mut Self {
