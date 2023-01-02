@@ -8,26 +8,26 @@ use core::arch::asm;
 #[macro_export]
 macro_rules! cpu_reg64 {
     ($struct_name:ident, $reg:ident) => {
-        struct $struct_name {
+        pub struct $struct_name {
             cached: u64,
         }
 
         impl $struct_name {
             // new creates a new instances with preset cached value.
             #[allow(dead_code)]
-            fn new(value: u64) -> Self {
+            pub fn new(value: u64) -> Self {
                 $struct_name { cached: value }
             }
 
             // new creates a new instances with zeroed cached value.
             #[allow(dead_code)]
-            fn zero() -> Self {
+            pub fn zero() -> Self {
                 Self::new(0)
             }
 
             // new creates a new instances with fetched value.
             #[allow(dead_code)]
-            fn fetch() -> Self {
+            pub fn fetch() -> Self {
                 let mut x = Self::zero();
                 x.fetch();
                 x
@@ -64,7 +64,11 @@ macro_rules! cpu_reg64 {
 }
 
 cpu_reg64!(CurrentEl, CurrentEl);
+cpu_reg64!(EsrEl3, ESR_EL3);
+cpu_reg64!(FarEl3, FAR_EL3);
 cpu_reg64!(MpidrEl1, MPIDR_EL1);
+cpu_reg64!(ScrEl3, SCR_EL3);
+cpu_reg64!(VBarEl3, VBAR_EL3);
 
 pub fn current_el() -> u64 {
     return CurrentEl::fetch().get_value() >> 2;

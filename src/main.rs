@@ -23,6 +23,7 @@ pub extern "C" fn _start_rust() -> ! {
         asm::halt();
     }
 
+    asm::init_exceptions();
     main();
     println!("Powering Off");
     asm::power_off();
