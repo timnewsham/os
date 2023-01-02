@@ -67,9 +67,17 @@ impl<T: reg::Trait<T>> Mmio<T> {
     pub fn new(addr: usize, val: T) -> Self {
         Mmio::<T> { addr: addr, cached: val }
     }
+
     #[allow(dead_code)]
     pub fn zero(addr: usize) -> Self {
         Self::new(addr, T::from(0))
+    }
+
+    #[allow(dead_code)]
+    pub fn fetch(addr: usize) -> Self {
+        let mut x = Self::new(addr, T::from(0));
+        x.fetch();
+        x
     }
 }
 
@@ -104,13 +112,24 @@ pub trait Reg32Array {
     const ADDR: usize;
     const SIZE: usize;
 
-    // get returns a Reg<u32> for this index.
+    // get returns a Reg<u32> for this index with the cached value zeroed.
+    #[allow(dead_code)]
     fn get(&self, idx: usize) -> Mmio<u32> {
         if idx >= Self::SIZE {
             panic!("idx {} is too big!", idx);
         }
         let addr = Self::ADDR + 4 * idx;
         Mmio::<u32>::zero(addr)
+    }
+
+    // get returns a Reg<u32> for this index with the cached value fetched.
+    #[allow(dead_code)]
+    fn fetch(&self, idx: usize) -> Mmio<u32> {
+        if idx >= Self::SIZE {
+            panic!("idx {} is too big!", idx);
+        }
+        let addr = Self::ADDR + 4 * idx;
+        Mmio::<u32>::fetch(addr)
     }
 }
 
