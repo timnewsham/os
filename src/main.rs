@@ -2,7 +2,6 @@
 #![no_main]
 #![feature(naked_functions)]
 #![feature(asm_const)]
-#![feature(associated_type_defaults)]
 
 mod asm;
 mod board;
