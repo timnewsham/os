@@ -1,5 +1,5 @@
 use crate::reg::Reg;
-use crate::{board, cpu, msr_imm};
+use crate::{board, cpu, msr_imm, println};
 use core::arch::{asm, global_asm};
 
 // halt spins forever.
@@ -27,7 +27,6 @@ pub fn power_off() -> ! {
 
 pub fn delay(cycles: u64) {
     unsafe {
-        // TODO: can this be optimized away? how to prevent that?
         asm!(
             "1:",
             "sub {cnt}, {cnt}, #1",
@@ -47,73 +46,73 @@ global_asm!(
     .balign 128
     _vector_0_serror:
         mov x0, #0x0
-        b _exception
+        b _unhandled_exception
     .balign 128
     _vector_0_fiq:
         mov x0, #0x1
-        b _exception
+        b _unhandled_exception
     .balign 128
     _vector_0_irq:
         mov x0, #0x2
-        b _exception
+        b _unhandled_exception
     .balign 128
     _vector_0_synch:
         mov x0, #0x3
-        b _exception
+        b _unhandled_exception
 
     // Lower EL, AArch64
     .balign 128
     _vector_1_serror:
         mov x0, #0x10
-        b _exception
+        b _unhandled_exception
     .balign 128
     _vector_1_fiq:
         mov x0, #0x11
-        b _exception
+        b _unhandled_exception
     .balign 128
     _vector_1_irq:
         mov x0, #0x12
-        b _exception
+        b _unhandled_exception
     .balign 128
     _vector_1_synch:
         mov x0, #0x13
-        b _exception
+        b _unhandled_exception
 
     // Current EL, SPx
     .balign 128
     _vector_2_serror:
         mov x0, #0x20
-        b _exception
+        b _unhandled_exception
     .balign 128
     _vector_2_fiq:
         mov x0, #0x21
-        b _exception
+        b _unhandled_exception
     .balign 128
     _vector_2_irq:
         mov x0, #0x22
-        b _exception
+        b _unhandled_exception
     .balign 128
     _vector_2_synch:
         mov x0, #0x23
-        b _exception
+        b _unhandled_exception
 
     // Current EL, SP0
     .balign 128
     _vector_3_serror:
         mov x0, #0x30
-        b _exception
+        b _unhandled_exception
     .balign 128
     _vector_3_fiq:
         mov x0, #0x31
-        b _exception
+        b _unhandled_exception
     .balign 128
     _vector_3_irq:
         mov x0, #0x32
-        b _exception
+        b _unhandled_exception
     .balign 128
     _vector_3_synch:
         mov x0, #0x33
-        b _exception
+        b _unhandled_exception
 "
 );
 
@@ -121,21 +120,32 @@ extern "C" {
     fn _vector_table();
 }
 
-// _exception is called by the cpu via vector_table to handle exceptions.
+// _unhandled_exception is called by the cpu via vector_table to handle exceptions.
 #[no_mangle]
-pub extern "C" fn _exception(num: u64) -> ! {
+pub extern "C" fn _unhandled_exception(num: u64) -> ! {
     let group = num >> 4;
     let index = num & 0xf;
+    let elr = cpu::ElrEl3::fetch().get_value();
     let esr = cpu::EsrEl3::fetch().get_value();
     let far = cpu::FarEl3::fetch().get_value();
-    panic!("got exception group {} index {}, ESR {:x}, FAR {:x}", group, index, esr, far);
+    println!("got exception group {} index {}", group, index);
+    println!("  ELR {:x} ESR {:x} FAR {:x}", elr, esr, far);
+    panic!("unhandled exception");
 }
 
 pub fn init_exceptions() {
-    // TODO: setup EL3 interrupt config
     let vbar = _vector_table as u64;
+    cpu::ScrEl3::zero()
+        .set_ea(true) // EA unmasked
+        .set_irq(true) // IRQ unmasked
+        .set_fiq(true) // FIQ unmasked
+        .set_rw(true) // RW - next level AArch64
+        .store();
+    cpu::SpSel::zero()
+        .set_sp(true) // SP - use SP_ELx for exceptions, not SP_EL0
+        .store();
     cpu::VBarEl3::new(vbar).store();
-    msr_imm!(DAIFClr, 0b1111);
+    msr_imm!(DAIFClr, 0b1111); // clear interrupt disables
 }
 
 // _start is the initial entry point.

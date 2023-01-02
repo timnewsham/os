@@ -74,10 +74,34 @@ macro_rules! cpu_reg64 {
 
 cpu_reg64!(CurrentEl, CurrentEl);
 cpu_reg64!(EsrEl3, ESR_EL3);
+cpu_reg64!(ElrEl3, ELR_EL3);
 cpu_reg64!(FarEl3, FAR_EL3);
 cpu_reg64!(MpidrEl1, MPIDR_EL1);
 cpu_reg64!(ScrEl3, SCR_EL3);
+cpu_reg64!(SpSel, SPSel);
 cpu_reg64!(VBarEl3, VBAR_EL3);
+
+impl ScrEl3 {
+    // TODO: figure out how to macro-ize bit accessor generation...
+    pub fn set_irq(&mut self, b: bool) -> &mut Self {
+        self.set_bit(1, b)
+    }
+    pub fn set_fiq(&mut self, b: bool) -> &mut Self {
+        self.set_bit(2, b)
+    }
+    pub fn set_ea(&mut self, b: bool) -> &mut Self {
+        self.set_bit(3, b)
+    }
+    pub fn set_rw(&mut self, b: bool) -> &mut Self {
+        self.set_bit(10, b)
+    }
+}
+
+impl SpSel {
+    pub fn set_sp(&mut self, b: bool) -> &mut Self {
+        self.set_bit(0, b)
+    }
+}
 
 pub fn current_el() -> u64 {
     return CurrentEl::fetch().get_value() >> 2;

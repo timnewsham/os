@@ -2,6 +2,7 @@
 pub trait Reg<T>
 where
     T: Copy
+        + From<bool>
         + From<u8>
         + core::cmp::Eq
         + core::ops::BitAnd<Output = T>
@@ -37,10 +38,34 @@ where
         self.set_value(new)
     }
 
+    // set_bit sets bit bitpos to val.
+    fn set_bit(&mut self, bitpos: u8, val: bool) -> &mut Self {
+        self.set_bits(bitpos, 1, T::from(val))
+    }
+
     // get_bits returns bits [shift .. shift+sz].
     fn get_bits(&self, shift: u8, sz: u8) -> T {
         let mask = (T::from(1) << sz) - T::from(1);
         let val = self.get_value();
         return (val >> shift) & mask;
     }
+
+    // get_bit returns bit bitpos.
+    fn get_bit(&self, bitpos: u8) -> bool {
+        self.get_bits(bitpos, 1) != T::from(0)
+    }
 }
+
+/*
+#[macro_export]
+macro_rules! define_bit {
+    ($bitpos:expr, $name:ident) => {
+        pub fn concat_idents!(get_, $name)(&self) -> bool {
+            self.get_bit($bitpos)
+        }
+        pub fn concat_idents!(set_, $name)(&mut self, val: bool) -> &mut Self {
+            self.set_bit(bitpos, val)
+        }
+    };
+}
+*/
