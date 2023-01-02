@@ -6,6 +6,15 @@ use crate::reg::Reg;
 use core::arch::asm;
 
 #[macro_export]
+macro_rules! msr_imm {
+    ($reg:ident, $imm:expr) => {
+        unsafe {
+            asm!(core::concat!("msr ", stringify!($reg), ", ", stringify!($imm)));
+        }
+    };
+}
+
+#[macro_export]
 macro_rules! cpu_reg64 {
     ($struct_name:ident, $reg:ident) => {
         pub struct $struct_name {

@@ -1,4 +1,4 @@
-use crate::cpu;
+use crate::{cpu, msr_imm};
 use crate::reg::Reg;
 use core::arch::{asm, global_asm};
 
@@ -135,7 +135,7 @@ pub fn init_exceptions() {
     // TODO: setup EL3 interrupt config
     let vbar = _vector_table as u64;
     cpu::VBarEl3::new(vbar).store();
-    unsafe { asm!("msr DAIFClr, #0b1111") };
+    msr_imm!(DAIFClr, 0b1111);
 }
 
 // _start is the initial entry point.
