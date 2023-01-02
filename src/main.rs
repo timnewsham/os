@@ -1,5 +1,7 @@
 #![no_std]
 #![no_main]
+#![feature(naked_functions)]
+#![feature(asm_const)]
 
 mod asm;
 mod board;

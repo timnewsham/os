@@ -1,5 +1,5 @@
 use crate::reg::Reg;
-use crate::{cpu, msr_imm};
+use crate::{board, cpu, msr_imm};
 use core::arch::{asm, global_asm};
 
 // halt spins forever.
@@ -140,21 +140,22 @@ pub fn init_exceptions() {
 
 // _start is the initial entry point.
 // Qemu calls it on all four cores, with no stack pointer set.
-// It sets up a stack for each core and tail-calls _start_rust.
-// TODO: this hardwires the board::RAM_TOP value!!!!
-// TODO: is there a way to inline board::RAM_TOP?
-// TODO: until then, make sure to keep this in synch!!!
-// TODO: STACK_SIZE is hardwired here and must match board::STACK_SIZE.
-global_asm!(
-    "
-    .globl _start
-    _start:
-        mrs x0, MPIDR_EL1
-        and x0, x0, 0xff        // x0 = core id
-        ldr x30, =(0x40000000 - 256 * 1024 * 1024) // board::RAM_TOP
-        mov x1, 0x10000         // x1 = STACKSIZE = 16 pages
-        msub x30, x0, x1, x30
-        mov sp, x30             // sp = STACKTOP - STACKSIZE * core id
-        b _start_rust
-"
-);
+// It sets up a stack for each core and tail calls _start_rust.
+#[no_mangle]
+#[naked]
+pub extern "C" fn _start() -> ! {
+    unsafe {
+        asm!(
+            "mrs x0, MPIDR_EL1",
+            "and x0, x0, 0xff        // x0 = core id",
+            "ldr x1, ={stack_size}",
+            "ldr x2, ={ram_top}",
+            "msub x30, x0, x1, x2",
+            "mov sp, x30             // sp = ram_top - core_id * stack_size",
+            "b _start_rust",
+            stack_size = const board::STACK_SIZE,
+            ram_top = const board::RAM_TOP,
+            options(noreturn),
+        );
+    }
+}
