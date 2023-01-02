@@ -47,7 +47,7 @@ fn _bitvec_write<T: Reg32Array>(reg_vec: T, sz: u8, pin: u32, val: u32) {
     let reg_index = (pin / fields_per_u32) as usize;
     let reg_offset = (pin % fields_per_u32) as u8;
 
-    reg_vec.fetch(reg_index).set_bits(reg_offset, sz, val).store();
+    reg_vec.index_fetch(reg_index).set_bits(reg_offset, sz, val).store();
 }
 
 // pin_disable_pull sets the pullup behavior of a GPIO pin to disable.

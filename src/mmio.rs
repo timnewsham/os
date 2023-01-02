@@ -114,7 +114,7 @@ pub trait Reg32Array {
 
     // get returns a Reg<u32> for this index with the cached value zeroed.
     #[allow(dead_code)]
-    fn get(&self, idx: usize) -> Mmio<u32> {
+    fn index(&self, idx: usize) -> Mmio<u32> {
         if idx >= Self::SIZE {
             panic!("idx {} is too big!", idx);
         }
@@ -124,7 +124,7 @@ pub trait Reg32Array {
 
     // get returns a Reg<u32> for this index with the cached value fetched.
     #[allow(dead_code)]
-    fn fetch(&self, idx: usize) -> Mmio<u32> {
+    fn index_fetch(&self, idx: usize) -> Mmio<u32> {
         if idx >= Self::SIZE {
             panic!("idx {} is too big!", idx);
         }
